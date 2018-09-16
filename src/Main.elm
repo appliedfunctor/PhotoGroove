@@ -9,7 +9,11 @@ import Random
 
 
 type alias Photo =
-    { url : String }
+    { url : String
+
+    --, size : Int
+    --, title : String
+    }
 
 
 type alias Model =
