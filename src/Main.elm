@@ -2,17 +2,18 @@ module Main exposing (Model, Msg(..), Photo, ThumbnailSize(..), initialCmd, init
 
 import Array exposing (Array)
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes exposing (checked, class, classList, id, name, src, title, type_)
 import Html.Events exposing (onClick)
 import Http
+import Json.Decode exposing (Decoder, int, list, string)
+import Json.Decode.Pipeline exposing (decode, optional, required)
 import Random
 
 
 type alias Photo =
     { url : String
-
-    --, size : Int
-    --, title : String
+    , size : Int
+    , title : String
     }
 
 
@@ -191,6 +192,14 @@ htmlErrorFormat err =
 
         _ ->
             toString err
+
+
+photoDecoder : Decoder Photo
+photoDecoder =
+    decode Photo
+        |> required "url" string
+        |> required "size" int
+        |> optional "title" string "(untitled)"
 
 
 initialModel : Model
