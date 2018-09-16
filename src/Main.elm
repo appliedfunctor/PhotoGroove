@@ -54,6 +54,20 @@ view model =
         ]
 
 
+viewOnError : Model -> Html Msg
+viewOnError model =
+    case model.loadingError of
+        Nothing ->
+            view model
+
+        Just errorMessage ->
+            div [ class "error-message" ]
+                [ h1 [] [ text "Photo Groove" ]
+                , p [] [ text errorMessage ]
+                , img [ src "https://media.giphy.com/media/27EhcDHnlkw1O/giphy.gif" ] []
+                ]
+
+
 viewLarge : Maybe String -> Html Msg
 viewLarge maybeUrl =
     case maybeUrl of
@@ -148,11 +162,31 @@ update msg model =
 
                 photos =
                     List.map Photo urls
-            in
-            ( { model | photos = photos }, Cmd.none )
 
-        LoadPhotos (Err _) ->
-            ( model, Cmd.none )
+                head =
+                    photos
+                        |> List.head
+                        |> Maybe.map .url
+            in
+            ( { model | photos = photos, selectedUrl = head }, Cmd.none )
+
+        LoadPhotos (Err error) ->
+            ( { model | loadingError = Just (htmlErrorFormat error) }, Cmd.none )
+
+
+htmlErrorFormat : Http.Error -> String
+htmlErrorFormat err =
+    case err of
+        Http.BadStatus error ->
+            "Error '"
+                ++ toString error.status.code
+                ++ " "
+                ++ error.status.message
+                ++ "' received from "
+                ++ error.url
+
+        _ ->
+            toString err
 
 
 initialModel : Model
@@ -175,7 +209,7 @@ main : Program Never Model Msg
 main =
     Html.program
         { init = ( initialModel, initialCmd )
-        , view = view
+        , view = viewOnError
         , update = update
         , subscriptions = \_ -> Sub.none
         }
