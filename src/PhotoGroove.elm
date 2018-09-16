@@ -50,12 +50,7 @@ view model =
             (List.map (viewSizeChooser model.chosenSize) [ Small, Medium, Large ])
         , div [ id "thumbnails", class (sizeToString model.chosenSize) ]
             (List.map (viewThumbnail model.selectedUrl) model.photos)
-
-        --, img
-        --    [ class "large"
-        --    , src (urlPrefix ++ "large/" ++ model.selectedUrl)
-        --    ]
-        --    []
+        , viewLarge model.selectedUrl
         ]
 
 
@@ -67,6 +62,16 @@ viewThumbnail selected thumbnail =
         , onClick (SelectPhotoByUrl thumbnail.url)
         ]
         []
+
+
+viewLarge : Maybe String -> Html Msg
+viewLarge selected =
+    case selected of
+        Nothing ->
+            text ""
+
+        Just url ->
+            img [ class "large", src (urlPrefix ++ "large/" ++ url) ] []
 
 
 viewSizeChooser : ThumbnailSize -> ThumbnailSize -> Html Msg
